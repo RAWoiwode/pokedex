@@ -1,11 +1,27 @@
 import { useEffect, useState } from "react";
-import { Image, ScrollView, Text, View } from "react-native";
+import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 
 interface Pokemon {
   name: string;
   id: number;
   image: string;
+  types: PokemonType[];
 }
+
+interface PokemonType {
+  type: {
+    name: string;
+    url: string;
+  };
+}
+
+const colorsByType: Record<string, string> = {
+  grass: "#00cc00",
+  fire: "#ee8f36",
+  water: "#0a19eb",
+  bug: "#3af53a",
+};
+
 export default function Index() {
   const [pokemon, setPokemon] = useState<Pokemon[]>([]);
 
@@ -24,7 +40,8 @@ export default function Index() {
 
           return {
             name: pokemon.name,
-            id: pokemon.id,
+            id: details.id,
+            types: details.types,
             image: details.sprites.front_default, // main sprite
           };
         }),
@@ -45,16 +62,49 @@ export default function Index() {
   }, []);
 
   return (
-    <ScrollView>
+    <ScrollView
+      contentContainerStyle={{
+        gap: 16,
+        padding: 16,
+      }}
+    >
       {pokemon.map((pokemon) => (
-        <View key={pokemon.id}>
-          <Text>{pokemon.name}</Text>
-          <Image
-            source={{ uri: pokemon.image }}
-            style={{ width: 100, height: 100 }}
-          />
+        <View
+          key={pokemon.id}
+          style={{
+            backgroundColor: colorsByType[pokemon.types[0].type.name] + 30,
+            padding: 20,
+            borderRadius: 20,
+          }}
+        >
+          <Text style={styles.name}>{pokemon.name}</Text>
+          <Text style={styles.type}>{pokemon.types[0].type.name}</Text>
+          <View
+            style={{
+              flexDirection: "row",
+            }}
+          >
+            <Image
+              source={{ uri: pokemon.image }}
+              style={{ width: 150, height: 150 }}
+            />
+          </View>
         </View>
       ))}
     </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  name: {
+    fontSize: 24,
+    fontWeight: "bold",
+    textTransform: "capitalize",
+    textAlign: "center",
+  },
+  type: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "gray",
+  },
+});
