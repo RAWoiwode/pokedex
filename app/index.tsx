@@ -1,3 +1,4 @@
+import { Link } from "expo-router";
 import { useEffect, useState } from "react";
 import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 
@@ -6,6 +7,7 @@ interface Pokemon {
   id: number;
   image: string;
   types: PokemonType[];
+  url: string;
 }
 
 interface PokemonType {
@@ -43,6 +45,7 @@ export default function Index() {
             id: details.id,
             types: details.types,
             image: details.sprites.front_default, // main sprite
+            url: pokemon.url,
           };
         }),
       );
@@ -69,27 +72,34 @@ export default function Index() {
       }}
     >
       {pokemon.map((pokemon) => (
-        <View
-          key={pokemon.id}
-          style={{
-            backgroundColor: colorsByType[pokemon.types[0].type.name] + 30,
-            padding: 20,
-            borderRadius: 20,
+        <Link
+          href={{
+            pathname: "/details",
+            params: { name: pokemon.name, url: pokemon.url },
           }}
+          key={pokemon.id}
         >
-          <Text style={styles.name}>{pokemon.name}</Text>
-          <Text style={styles.type}>{pokemon.types[0].type.name}</Text>
           <View
             style={{
-              flexDirection: "row",
+              backgroundColor: colorsByType[pokemon.types[0].type.name] + 30,
+              padding: 20,
+              borderRadius: 20,
             }}
           >
-            <Image
-              source={{ uri: pokemon.image }}
-              style={{ width: 150, height: 150 }}
-            />
+            <Text style={styles.name}>{pokemon.name}</Text>
+            <Text style={styles.type}>{pokemon.types[0].type.name}</Text>
+            <View
+              style={{
+                flexDirection: "row",
+              }}
+            >
+              <Image
+                source={{ uri: pokemon.image }}
+                style={{ width: 150, height: 150 }}
+              />
+            </View>
           </View>
-        </View>
+        </Link>
       ))}
     </ScrollView>
   );
