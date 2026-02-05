@@ -1,4 +1,4 @@
-const MEGA_POKEMON = new Map([
+export const MEGA_POKEMON = new Map([
   // X & Y
   ["venusaur", 1],
   ["charizard", 2], // 'mega-x' & 'mega-y'

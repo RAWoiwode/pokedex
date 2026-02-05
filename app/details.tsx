@@ -1,4 +1,5 @@
 import { COLORS_BY_TYPE } from "@/constants/colorsByType";
+import { MEGA_POKEMON } from "@/constants/megaList";
 import { Stack, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
@@ -9,6 +10,11 @@ interface PokemonDetails {
   type2: string | null;
   front_sprite: string;
   front_shiny_sprite: string;
+  mega: number | undefined;
+  mega_front_sprite?: string | null;
+  mega_front_shiny_sprite?: string | null;
+  mega_front_sprite_2?: string | null;
+  mega_front_shiny_sprite_2?: string | null;
 }
 export default function Details() {
   const { name, url } = useLocalSearchParams();
@@ -28,15 +34,63 @@ export default function Details() {
       const data = await response.json();
 
       // console.log(data);
+      const megaInfo = {
+        mega: MEGA_POKEMON.get(data.name),
+        mega_front_sprite: null,
+        mega_front_shiny_sprite: null,
+        mega_front_sprite_2: null,
+        mega_front_shiny_sprite_2: null,
+      };
+
+      switch (megaInfo.mega) {
+        case 1:
+          const megaResponse = await fetch(
+            "https://pokeapi.co/api/v2/pokemon-form/" + data.name + "-mega",
+          );
+          const megaData = await megaResponse.json();
+          megaInfo.mega_front_sprite = megaData.sprites.front_default;
+          megaInfo.mega_front_shiny_sprite = megaData.sprites.front_shiny;
+          break;
+        case 2:
+          switch (data.name) {
+            case "charizard":
+            case "mewtwo":
+            case "raichu":
+              const megaXResponse = await fetch(
+                "https://pokeapi.co/api/v2/pokemon-form/" +
+                  data.name +
+                  "-mega-x",
+              );
+              const megaXData = await megaXResponse.json();
+              megaInfo.mega_front_sprite = megaXData.sprites.front_default;
+              megaInfo.mega_front_shiny_sprite = megaXData.sprites.front_shiny;
+
+              const megaYResponse = await fetch(
+                "https://pokeapi.co/api/v2/pokemon-form/" +
+                  data.name +
+                  "-mega-y",
+              );
+              const megaYData = await megaYResponse.json();
+              megaInfo.mega_front_sprite_2 = megaYData.sprites.front_default;
+              megaInfo.mega_front_shiny_sprite_2 =
+                megaYData.sprites.front_shiny;
+              break;
+          }
+      }
+      // if (megaInfo.mega) {
+      // }
+
       const details = {
         id: data.id,
         type1: data.types[0].type.name,
         type2: data.types[1] ? data.types[1].type.name : null,
         front_sprite: data.sprites.front_default,
         front_shiny_sprite: data.sprites.front_shiny,
+        ...megaInfo,
       };
 
       setPokemonDetails(details);
+      console.log(details);
     } catch (error) {
       console.log(error);
     }
@@ -110,7 +164,7 @@ export default function Details() {
               >
                 {pokemonDetails.type1}
               </Text>
-              {pokemonDetails.type2 ? (
+              {pokemonDetails.type2 && (
                 <Text
                   style={{
                     width: "50%",
@@ -123,10 +177,13 @@ export default function Details() {
                 >
                   {pokemonDetails.type2}
                 </Text>
-              ) : null}
+              )}
             </View>
             <View
-              style={{ flexDirection: "row", justifyContent: "space-evenly" }}
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-evenly",
+              }}
             >
               <Image
                 source={{ uri: pokemonDetails.front_sprite }}
@@ -146,6 +203,61 @@ export default function Details() {
                   borderRadius: 8,
                 }}
               />
+            </View>
+            {pokemonDetails.mega && (
+              <Text style={{ textAlign: "center" }}>MEGA</Text>
+            )}
+            <View
+              style={{
+                flexDirection: "row",
+                flexWrap: "wrap",
+                justifyContent: "space-evenly",
+              }}
+            >
+              {pokemonDetails.mega_front_sprite && (
+                <Image
+                  source={{ uri: pokemonDetails.mega_front_sprite }}
+                  style={{
+                    height: 175,
+                    width: 175,
+                    backgroundColor: COLORS_BY_TYPE[pokemonDetails.type1] + 33,
+                    borderRadius: 8,
+                  }}
+                />
+              )}
+              {pokemonDetails.mega_front_shiny_sprite && (
+                <Image
+                  source={{ uri: pokemonDetails.mega_front_shiny_sprite }}
+                  style={{
+                    height: 175,
+                    width: 175,
+                    backgroundColor: COLORS_BY_TYPE[pokemonDetails.type1] + 33,
+                    borderRadius: 8,
+                  }}
+                />
+              )}
+              {pokemonDetails.mega_front_sprite_2 && (
+                <Image
+                  source={{ uri: pokemonDetails.mega_front_sprite_2 }}
+                  style={{
+                    height: 175,
+                    width: 175,
+                    backgroundColor: COLORS_BY_TYPE[pokemonDetails.type1] + 33,
+                    borderRadius: 8,
+                  }}
+                />
+              )}
+              {pokemonDetails.mega_front_shiny_sprite_2 && (
+                <Image
+                  source={{ uri: pokemonDetails.mega_front_shiny_sprite_2 }}
+                  style={{
+                    height: 175,
+                    width: 175,
+                    backgroundColor: COLORS_BY_TYPE[pokemonDetails.type1] + 33,
+                    borderRadius: 8,
+                  }}
+                />
+              )}
             </View>
           </>
         ) : (
