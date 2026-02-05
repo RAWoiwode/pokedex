@@ -1,3 +1,4 @@
+import { COLORS_BY_TYPE } from "@/constants/colorsByType";
 import { Link } from "expo-router";
 import { useEffect, useState } from "react";
 import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
@@ -16,13 +17,6 @@ interface PokemonType {
     url: string;
   };
 }
-
-const colorsByType: Record<string, string> = {
-  grass: "#00cc00",
-  fire: "#ee8f36",
-  water: "#0a19eb",
-  bug: "#3af53a",
-};
 
 export default function Index() {
   const [pokemon, setPokemon] = useState<Pokemon[]>([]);
@@ -45,7 +39,7 @@ export default function Index() {
             id: details.id,
             types: details.types,
             image: details.sprites.front_default, // main sprite
-            url: pokemon.url,
+            url: "https://pokeapi.co/api/v2/pokemon-form/" + details.id,
           };
         }),
       );
@@ -81,7 +75,7 @@ export default function Index() {
         >
           <View
             style={{
-              backgroundColor: colorsByType[pokemon.types[0].type.name] + 30,
+              backgroundColor: COLORS_BY_TYPE[pokemon.types[0].type.name] + 75,
               padding: 20,
               borderRadius: 20,
             }}
