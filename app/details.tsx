@@ -108,9 +108,9 @@ export default function Details() {
         style={{
           fontSize: 32,
           fontWeight: "bold",
-          backgroundColor: "gray",
-          width: "25%",
+          width: "auto",
           textAlign: "center",
+          paddingRight: 16,
         }}
       >
         {pokemonDetails?.id}
@@ -121,7 +121,6 @@ export default function Details() {
           textTransform: "capitalize",
           fontSize: 28,
           fontWeight: "bold",
-          backgroundColor: "red",
         }}
       >
         {name}
@@ -135,6 +134,11 @@ export default function Details() {
         options={{
           title: name as string,
           headerTitle: () => headerDisplay,
+          headerStyle: {
+            backgroundColor: pokemonDetails
+              ? COLORS_BY_TYPE[pokemonDetails.type1]
+              : COLORS_BY_TYPE["normal"],
+          },
         }}
       />
       <ScrollView
@@ -155,10 +159,12 @@ export default function Details() {
               <Text
                 style={{
                   width: "50%",
+                  flex: 1,
                   fontSize: 20,
                   textTransform: "uppercase",
                   textAlign: "center",
-                  backgroundColor: COLORS_BY_TYPE[pokemonDetails.type1] + 75,
+                  fontWeight: "bold",
+                  backgroundColor: COLORS_BY_TYPE[pokemonDetails.type1],
                   paddingVertical: 4,
                 }}
               >
@@ -168,10 +174,12 @@ export default function Details() {
                 <Text
                   style={{
                     width: "50%",
+                    flex: 1,
                     fontSize: 20,
                     textTransform: "uppercase",
                     textAlign: "center",
-                    backgroundColor: COLORS_BY_TYPE[pokemonDetails.type2] + 75,
+                    fontWeight: "bold",
+                    backgroundColor: COLORS_BY_TYPE[pokemonDetails.type2],
                     paddingVertical: 4,
                   }}
                 >

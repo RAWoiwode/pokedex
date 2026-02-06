@@ -3,6 +3,7 @@ import { Link } from "expo-router";
 import { useEffect, useState } from "react";
 import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 
+// TODO: Figure out where the bottom border of 1px b/w modal header and body comes from
 interface Pokemon {
   name: string;
   id: number;
@@ -24,7 +25,7 @@ export default function Index() {
   async function fetchPokemon() {
     try {
       const response = await fetch(
-        "https://pokeapi.co/api/v2/pokemon/?limit=20",
+        "https://pokeapi.co/api/v2/pokemon/?limit=151",
       );
       const data = await response.json();
 
@@ -63,6 +64,8 @@ export default function Index() {
       contentContainerStyle={{
         gap: 16,
         padding: 16,
+        flexDirection: "row",
+        flexWrap: "wrap",
       }}
     >
       {pokemon.map((pokemon) => (
@@ -75,13 +78,12 @@ export default function Index() {
         >
           <View
             style={{
-              backgroundColor: COLORS_BY_TYPE[pokemon.types[0].type.name] + 75,
+              backgroundColor: COLORS_BY_TYPE[pokemon.types[0].type.name],
               padding: 20,
               borderRadius: 20,
             }}
           >
             <Text style={styles.name}>{pokemon.name}</Text>
-            <Text style={styles.type}>{pokemon.types[0].type.name}</Text>
             <View
               style={{
                 flexDirection: "row",
@@ -105,10 +107,5 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textTransform: "capitalize",
     textAlign: "center",
-  },
-  type: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "gray",
   },
 });
