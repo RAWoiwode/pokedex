@@ -199,7 +199,6 @@ export default function Details() {
             </View>
             <View
               style={{
-                flex: 1,
                 alignItems: "center",
                 backgroundColor: COLORS_BY_TYPE[pokemonDetails.type1] + 33,
               }}
