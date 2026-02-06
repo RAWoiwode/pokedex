@@ -89,10 +89,14 @@ export default function Index() {
                 flexDirection: "row",
               }}
             >
-              <Image
-                source={{ uri: pokemon.image }}
-                style={{ width: 150, height: 150 }}
-              />
+              {pokemon.image ? (
+                <Image
+                  source={{ uri: pokemon.image }}
+                  style={{ width: 150, height: 150 }}
+                />
+              ) : (
+                <Text>Loading...</Text>
+              )}
             </View>
           </View>
         </Link>

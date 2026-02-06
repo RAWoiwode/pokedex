@@ -2,7 +2,14 @@ import { COLORS_BY_TYPE } from "@/constants/colorsByType";
 import { MEGA_POKEMON } from "@/constants/megaList";
 import { Stack, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
 interface PokemonDetails {
   id: number;
@@ -22,6 +29,7 @@ export default function Details() {
   const [pokemonDetails, setPokemonDetails] = useState<PokemonDetails | null>(
     null,
   );
+  const [isShiny, setIsShiny] = useState(false);
 
   useEffect(() => {
     fetchPokemonDetailsByUrl(url as string);
@@ -77,8 +85,6 @@ export default function Details() {
               break;
           }
       }
-      // if (megaInfo.mega) {
-      // }
 
       const details = {
         id: data.id,
@@ -95,6 +101,10 @@ export default function Details() {
       console.log(error);
     }
   }
+
+  const onShinyPress = () => {
+    setIsShiny(!isShiny);
+  };
 
   const headerDisplay = (
     <View
@@ -189,31 +199,66 @@ export default function Details() {
             </View>
             <View
               style={{
-                flexDirection: "row",
-                justifyContent: "space-evenly",
+                flex: 1,
+                alignItems: "center",
+                backgroundColor: COLORS_BY_TYPE[pokemonDetails.type1] + 33,
               }}
             >
-              <Image
-                source={{ uri: pokemonDetails.front_sprite }}
+              {isShiny ? (
+                <Image
+                  source={{ uri: pokemonDetails.front_shiny_sprite }}
+                  style={{
+                    height: 256,
+                    width: 256,
+                    borderRadius: 8,
+                  }}
+                />
+              ) : (
+                <Image
+                  source={{ uri: pokemonDetails.front_sprite }}
+                  style={{
+                    borderRadius: 8,
+                    height: 256,
+                    width: 256,
+                  }}
+                />
+              )}
+            </View>
+            <View
+              style={{
+                flex: 1,
+                alignItems: "center",
+              }}
+            >
+              <Pressable
+                onPress={onShinyPress}
                 style={{
-                  height: 175,
-                  width: 175,
-                  backgroundColor: COLORS_BY_TYPE[pokemonDetails.type1] + 33,
-                  borderRadius: 8,
+                  borderColor: "black",
+                  borderWidth: 1,
+                  width: "50%",
+                  padding: 12,
                 }}
-              />
-              <Image
-                source={{ uri: pokemonDetails.front_shiny_sprite }}
-                style={{
-                  height: 175,
-                  width: 175,
-                  backgroundColor: COLORS_BY_TYPE[pokemonDetails.type1] + 33,
-                  borderRadius: 8,
-                }}
-              />
+              >
+                <Text style={{ textAlign: "center", fontSize: 28 }}>Shiny</Text>
+              </Pressable>
             </View>
             {pokemonDetails.mega && (
-              <Text style={{ textAlign: "center" }}>MEGA</Text>
+              <View
+                style={{
+                  flex: 1,
+                  alignItems: "center",
+                  backgroundColor: "pink",
+                }}
+              >
+                <Text
+                  style={{
+                    textAlign: "center",
+                    fontSize: 32,
+                  }}
+                >
+                  Forms
+                </Text>
+              </View>
             )}
             <View
               style={{
