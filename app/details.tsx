@@ -1,3 +1,4 @@
+import MegaDisplay from "@/components/MegaDisplay";
 import { COLORS_BY_TYPE } from "@/constants/colorsByType";
 import { MEGA_POKEMON } from "@/constants/megaList";
 import { Stack, useLocalSearchParams } from "expo-router";
@@ -30,6 +31,10 @@ export default function Details() {
     null,
   );
   const [isShiny, setIsShiny] = useState(false);
+  const [isMegaBase, setIsMegaBase] = useState(false);
+  const [isMegaAlternate, setIsMegaAlternate] = useState(false);
+
+  let imageURI = "";
 
   useEffect(() => {
     fetchPokemonDetailsByUrl(url as string);
@@ -105,6 +110,45 @@ export default function Details() {
   const onShinyPress = () => {
     setIsShiny(!isShiny);
   };
+
+  const onMegaBasePress = () => {
+    setIsMegaBase((prev) => {
+      if (!prev) {
+        setIsMegaAlternate(false);
+      }
+      return !prev;
+    });
+  };
+
+  const onMegaAlternatePress = () => {
+    setIsMegaAlternate((prev) => {
+      if (!prev) {
+        setIsMegaBase(false);
+      }
+      return !prev;
+    });
+  };
+
+  // Form Check Logic
+  if (pokemonDetails) {
+    if (isMegaBase) {
+      if (isShiny) {
+        imageURI = pokemonDetails.mega_front_shiny_sprite ?? "";
+      } else {
+        imageURI = pokemonDetails.mega_front_sprite ?? "";
+      }
+    } else if (isMegaAlternate) {
+      if (isShiny) {
+        imageURI = pokemonDetails.mega_front_shiny_sprite_2 ?? "";
+      } else {
+        imageURI = pokemonDetails.mega_front_sprite_2 ?? "";
+      }
+    } else {
+      imageURI = isShiny
+        ? (pokemonDetails.front_shiny_sprite ?? "")
+        : (pokemonDetails.front_sprite ?? "");
+    }
+  }
 
   const headerDisplay = (
     <View
@@ -203,25 +247,14 @@ export default function Details() {
                 backgroundColor: COLORS_BY_TYPE[pokemonDetails.type1] + 33,
               }}
             >
-              {isShiny ? (
-                <Image
-                  source={{ uri: pokemonDetails.front_shiny_sprite }}
-                  style={{
-                    height: 256,
-                    width: 256,
-                    borderRadius: 8,
-                  }}
-                />
-              ) : (
-                <Image
-                  source={{ uri: pokemonDetails.front_sprite }}
-                  style={{
-                    borderRadius: 8,
-                    height: 256,
-                    width: 256,
-                  }}
-                />
-              )}
+              <Image
+                source={{ uri: imageURI }}
+                style={{
+                  borderRadius: 8,
+                  height: 256,
+                  width: 256,
+                }}
+              />
             </View>
             <View
               style={{
@@ -266,48 +299,11 @@ export default function Details() {
                 justifyContent: "space-evenly",
               }}
             >
-              {pokemonDetails.mega_front_sprite && (
-                <Image
-                  source={{ uri: pokemonDetails.mega_front_sprite }}
-                  style={{
-                    height: 175,
-                    width: 175,
-                    backgroundColor: COLORS_BY_TYPE[pokemonDetails.type1] + 33,
-                    borderRadius: 8,
-                  }}
-                />
-              )}
-              {pokemonDetails.mega_front_shiny_sprite && (
-                <Image
-                  source={{ uri: pokemonDetails.mega_front_shiny_sprite }}
-                  style={{
-                    height: 175,
-                    width: 175,
-                    backgroundColor: COLORS_BY_TYPE[pokemonDetails.type1] + 33,
-                    borderRadius: 8,
-                  }}
-                />
-              )}
-              {pokemonDetails.mega_front_sprite_2 && (
-                <Image
-                  source={{ uri: pokemonDetails.mega_front_sprite_2 }}
-                  style={{
-                    height: 175,
-                    width: 175,
-                    backgroundColor: COLORS_BY_TYPE[pokemonDetails.type1] + 33,
-                    borderRadius: 8,
-                  }}
-                />
-              )}
-              {pokemonDetails.mega_front_shiny_sprite_2 && (
-                <Image
-                  source={{ uri: pokemonDetails.mega_front_shiny_sprite_2 }}
-                  style={{
-                    height: 175,
-                    width: 175,
-                    backgroundColor: COLORS_BY_TYPE[pokemonDetails.type1] + 33,
-                    borderRadius: 8,
-                  }}
+              {pokemonDetails.mega && (
+                <MegaDisplay
+                  megaCount={pokemonDetails.mega}
+                  onBasePress={onMegaBasePress}
+                  onAlternatePress={onMegaAlternatePress}
                 />
               )}
             </View>
