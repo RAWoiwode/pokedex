@@ -1,7 +1,14 @@
 import { COLORS_BY_TYPE } from "@/constants/colorsByType";
 import { Link } from "expo-router";
 import { useEffect, useState } from "react";
-import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
 // TODO: Figure out where the bottom border of 1px b/w modal header and body comes from
 interface Pokemon {
@@ -95,7 +102,7 @@ export default function Index() {
                   style={{ width: 150, height: 150 }}
                 />
               ) : (
-                <Text>Loading...</Text>
+                <ActivityIndicator />
               )}
             </View>
           </View>

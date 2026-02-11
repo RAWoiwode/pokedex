@@ -1,13 +1,21 @@
 import React from "react";
-import { Pressable, Text, View } from "react-native";
+import { Switch, Text, View } from "react-native";
 
 interface Props {
   megaCount: number;
+  isMegaBase: boolean;
+  isMegaAlternate: boolean;
   onBasePress: () => void;
   onAlternatePress: () => void;
 }
 
-const MegaDisplay = ({ megaCount, onBasePress, onAlternatePress }: Props) => {
+const MegaDisplay = ({
+  megaCount,
+  isMegaBase,
+  isMegaAlternate,
+  onBasePress,
+  onAlternatePress,
+}: Props) => {
   let display;
 
   if (megaCount === 2) {
@@ -16,30 +24,25 @@ const MegaDisplay = ({ megaCount, onBasePress, onAlternatePress }: Props) => {
         style={{
           flex: 1,
           alignItems: "center",
+          gap: 16,
         }}
       >
-        <Pressable
-          onPress={onBasePress}
-          style={{
-            borderColor: "black",
-            borderWidth: 1,
-            width: "50%",
-            padding: 12,
-          }}
-        >
+        <View style={{ flexDirection: "row", gap: 10, alignItems: "center" }}>
+          <Switch
+            onValueChange={onBasePress}
+            value={isMegaBase}
+            ios_backgroundColor={"black"}
+          />
           <Text style={{ textAlign: "center", fontSize: 28 }}>MEGA X</Text>
-        </Pressable>
-        <Pressable
-          onPress={onAlternatePress}
-          style={{
-            borderColor: "black",
-            borderWidth: 1,
-            width: "50%",
-            padding: 12,
-          }}
-        >
+        </View>
+        <View style={{ flexDirection: "row", gap: 10, alignItems: "center" }}>
+          <Switch
+            onValueChange={onAlternatePress}
+            value={isMegaAlternate}
+            ios_backgroundColor={"black"}
+          />
           <Text style={{ textAlign: "center", fontSize: 28 }}>MEGA Y</Text>
-        </Pressable>
+        </View>
       </View>
     );
   } else {
@@ -48,19 +51,15 @@ const MegaDisplay = ({ megaCount, onBasePress, onAlternatePress }: Props) => {
         style={{
           flex: 1,
           alignItems: "center",
+          marginHorizontal: "auto",
         }}
       >
-        <Pressable
-          onPress={onBasePress}
-          style={{
-            borderColor: "black",
-            borderWidth: 1,
-            width: "50%",
-            padding: 12,
-          }}
-        >
-          <Text style={{ textAlign: "center", fontSize: 28 }}>MEGA</Text>
-        </Pressable>
+        <Switch
+          onValueChange={onBasePress}
+          value={isMegaBase}
+          ios_backgroundColor={"black"}
+        />
+        <Text style={{ textAlign: "center", fontSize: 28 }}>MEGA</Text>
       </View>
     );
   }

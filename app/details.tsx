@@ -1,16 +1,10 @@
 import MegaDisplay from "@/components/MegaDisplay";
 import { COLORS_BY_TYPE } from "@/constants/colorsByType";
+import { GIGANTAMAX_POKEMON } from "@/constants/gigantamaxList";
 import { MEGA_POKEMON } from "@/constants/megaList";
 import { Stack, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
-import {
-  Image,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Image, ScrollView, Switch, Text, View } from "react-native";
 
 interface PokemonDetails {
   id: number;
@@ -23,6 +17,8 @@ interface PokemonDetails {
   mega_front_shiny_sprite?: string | null;
   mega_front_sprite_2?: string | null;
   mega_front_shiny_sprite_2?: string | null;
+  gmax_front_sprite?: string | null;
+  gmax_front_shiny_sprite?: string | null;
 }
 export default function Details() {
   const { name, url } = useLocalSearchParams();
@@ -33,6 +29,7 @@ export default function Details() {
   const [isShiny, setIsShiny] = useState(false);
   const [isMegaBase, setIsMegaBase] = useState(false);
   const [isMegaAlternate, setIsMegaAlternate] = useState(false);
+  const [isGigantamax, setIsGigantamax] = useState(false);
 
   let imageURI = "";
 
@@ -91,6 +88,21 @@ export default function Details() {
           }
       }
 
+      const gmaxInfo = {
+        gmax: GIGANTAMAX_POKEMON.includes(data.name),
+        gmax_front_sprite: null,
+        gmax_front_shiny_sprite: null,
+      };
+
+      if (gmaxInfo.gmax) {
+        const gmaxResponse = await fetch(
+          "https://pokeapi.co/api/v2/pokemon-form/" + data.name + "-gmax",
+        );
+        const gmaxData = await gmaxResponse.json();
+        gmaxInfo.gmax_front_sprite = gmaxData.sprites.front_default;
+        gmaxInfo.gmax_front_shiny_sprite = gmaxData.sprites.front_shiny;
+      }
+
       const details = {
         id: data.id,
         type1: data.types[0].type.name,
@@ -98,6 +110,7 @@ export default function Details() {
         front_sprite: data.sprites.front_default,
         front_shiny_sprite: data.sprites.front_shiny,
         ...megaInfo,
+        ...gmaxInfo,
       };
 
       setPokemonDetails(details);
@@ -142,6 +155,12 @@ export default function Details() {
         imageURI = pokemonDetails.mega_front_shiny_sprite_2 ?? "";
       } else {
         imageURI = pokemonDetails.mega_front_sprite_2 ?? "";
+      }
+    } else if (isGigantamax) {
+      if (isShiny) {
+        imageURI = pokemonDetails.gmax_front_shiny_sprite ?? "";
+      } else {
+        imageURI = pokemonDetails.gmax_front_sprite ?? "";
       }
     } else {
       imageURI = isShiny
@@ -259,20 +278,18 @@ export default function Details() {
             <View
               style={{
                 flex: 1,
+                flexDirection: "row",
                 alignItems: "center",
+                gap: 10,
+                marginHorizontal: "auto",
               }}
             >
-              <Pressable
-                onPress={onShinyPress}
-                style={{
-                  borderColor: "black",
-                  borderWidth: 1,
-                  width: "50%",
-                  padding: 12,
-                }}
-              >
-                <Text style={{ textAlign: "center", fontSize: 28 }}>Shiny</Text>
-              </Pressable>
+              <Switch
+                onValueChange={onShinyPress}
+                value={isShiny}
+                ios_backgroundColor={"black"}
+              />
+              <Text style={{ textAlign: "center", fontSize: 28 }}>Shiny</Text>
             </View>
             {pokemonDetails.mega && (
               <View
@@ -302,6 +319,8 @@ export default function Details() {
               {pokemonDetails.mega && (
                 <MegaDisplay
                   megaCount={pokemonDetails.mega}
+                  isMegaBase={isMegaBase}
+                  isMegaAlternate={isMegaAlternate}
                   onBasePress={onMegaBasePress}
                   onAlternatePress={onMegaAlternatePress}
                 />
@@ -315,5 +334,3 @@ export default function Details() {
     </>
   );
 }
-
-const styles = StyleSheet.create({});
