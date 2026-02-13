@@ -32,7 +32,7 @@ export default function Index() {
   async function fetchPokemon() {
     try {
       const response = await fetch(
-        "https://pokeapi.co/api/v2/pokemon/?limit=151",
+        "https://pokeapi.co/api/v2/pokemon/?limit=252",
       );
       const data = await response.json();
 
