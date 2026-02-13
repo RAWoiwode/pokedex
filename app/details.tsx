@@ -1,10 +1,18 @@
+import GigantamaxDisplay from "@/components/GigantamaxDisplay";
 import MegaDisplay from "@/components/MegaDisplay";
 import { COLORS_BY_TYPE } from "@/constants/colorsByType";
 import { GIGANTAMAX_POKEMON } from "@/constants/gigantamaxList";
 import { MEGA_POKEMON } from "@/constants/megaList";
 import { Stack, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { Image, ScrollView, Switch, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  Image,
+  ScrollView,
+  Switch,
+  Text,
+  View,
+} from "react-native";
 
 interface PokemonDetails {
   id: number;
@@ -17,6 +25,7 @@ interface PokemonDetails {
   mega_front_shiny_sprite?: string | null;
   mega_front_sprite_2?: string | null;
   mega_front_shiny_sprite_2?: string | null;
+  gmax: boolean;
   gmax_front_sprite?: string | null;
   gmax_front_shiny_sprite?: string | null;
 }
@@ -114,7 +123,7 @@ export default function Details() {
       };
 
       setPokemonDetails(details);
-      console.log(details);
+      // console.log(details);
     } catch (error) {
       console.log(error);
     }
@@ -128,6 +137,7 @@ export default function Details() {
     setIsMegaBase((prev) => {
       if (!prev) {
         setIsMegaAlternate(false);
+        setIsGigantamax(false);
       }
       return !prev;
     });
@@ -137,6 +147,17 @@ export default function Details() {
     setIsMegaAlternate((prev) => {
       if (!prev) {
         setIsMegaBase(false);
+        setIsGigantamax(false);
+      }
+      return !prev;
+    });
+  };
+
+  const onGigantamaxPress = () => {
+    setIsGigantamax((prev) => {
+      if (!prev) {
+        setIsMegaBase(false);
+        setIsMegaAlternate(false);
       }
       return !prev;
     });
@@ -284,12 +305,12 @@ export default function Details() {
                 marginHorizontal: "auto",
               }}
             >
+              <Text style={{ textAlign: "center", fontSize: 28 }}>Shiny</Text>
               <Switch
                 onValueChange={onShinyPress}
                 value={isShiny}
                 ios_backgroundColor={"black"}
               />
-              <Text style={{ textAlign: "center", fontSize: 28 }}>Shiny</Text>
             </View>
             {pokemonDetails.mega && (
               <View
@@ -309,26 +330,26 @@ export default function Details() {
                 </Text>
               </View>
             )}
-            <View
-              style={{
-                flexDirection: "row",
-                flexWrap: "wrap",
-                justifyContent: "space-evenly",
-              }}
-            >
-              {pokemonDetails.mega && (
-                <MegaDisplay
-                  megaCount={pokemonDetails.mega}
-                  isMegaBase={isMegaBase}
-                  isMegaAlternate={isMegaAlternate}
-                  onBasePress={onMegaBasePress}
-                  onAlternatePress={onMegaAlternatePress}
-                />
-              )}
-            </View>
+            {/* Mega Pokemon Switches */}
+            {pokemonDetails.mega && (
+              <MegaDisplay
+                megaCount={pokemonDetails.mega}
+                isMegaBase={isMegaBase}
+                isMegaAlternate={isMegaAlternate}
+                onBasePress={onMegaBasePress}
+                onAlternatePress={onMegaAlternatePress}
+              />
+            )}
+            {/* Gigantamax Pokemon Switches */}
+            {pokemonDetails.gmax && (
+              <GigantamaxDisplay
+                isGigantamax={isGigantamax}
+                onGMaxPress={onGigantamaxPress}
+              />
+            )}
           </>
         ) : (
-          <Text>Loading...</Text>
+          <ActivityIndicator />
         )}
       </ScrollView>
     </>

@@ -22,26 +22,27 @@ const MegaDisplay = ({
     display = (
       <View
         style={{
-          flex: 1,
-          alignItems: "center",
+          flexDirection: "row",
+          justifyContent: "center",
           gap: 16,
         }}
       >
+        <Text style={{ fontSize: 28 }}>MEGA</Text>
         <View style={{ flexDirection: "row", gap: 10, alignItems: "center" }}>
+          <Text style={{ textAlign: "center", fontSize: 28 }}>X</Text>
           <Switch
             onValueChange={onBasePress}
             value={isMegaBase}
             ios_backgroundColor={"black"}
           />
-          <Text style={{ textAlign: "center", fontSize: 28 }}>MEGA X</Text>
         </View>
         <View style={{ flexDirection: "row", gap: 10, alignItems: "center" }}>
+          <Text style={{ textAlign: "center", fontSize: 28 }}>Y</Text>
           <Switch
             onValueChange={onAlternatePress}
             value={isMegaAlternate}
             ios_backgroundColor={"black"}
           />
-          <Text style={{ textAlign: "center", fontSize: 28 }}>MEGA Y</Text>
         </View>
       </View>
     );
@@ -49,17 +50,18 @@ const MegaDisplay = ({
     display = (
       <View
         style={{
-          flex: 1,
+          flexDirection: "row",
+          gap: 10,
           alignItems: "center",
           marginHorizontal: "auto",
         }}
       >
+        <Text style={{ textAlign: "center", fontSize: 28 }}>MEGA</Text>
         <Switch
           onValueChange={onBasePress}
           value={isMegaBase}
           ios_backgroundColor={"black"}
         />
-        <Text style={{ textAlign: "center", fontSize: 28 }}>MEGA</Text>
       </View>
     );
   }
