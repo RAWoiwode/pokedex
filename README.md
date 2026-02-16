@@ -2,14 +2,16 @@
 
 ## TODO
 
-- Work on loading all pokemon properly
-  - Maybe make a top menu to select by region to reduce load
+- Since PokeAPI just assigns all forms an ID, I need to figure out how to skip certain ID's (i.e. Megas, GMAX, etc)
+- Long names (e.g Giratina-Altered) need to be handled better, causing horizontal scroll currently
 - Animated sprites if possible?
 - Primal forms
-- Paradox Pokemon
-  - They are counted as separate pokemon
+- Paradox Pokemon - show up with new loading method
+  - They are counted as separate pokemon; Maybe add this as a toggle form??
 - Terastal Form
 - 3D Models?
+- Work on loading all pokemon properly - DONE
+  - Maybe make a top menu to select by region to reduce load - Still like this idea
 
 # Expo
 
