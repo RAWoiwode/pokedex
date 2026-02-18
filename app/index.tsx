@@ -63,12 +63,29 @@ export default function Index() {
       const data = await response.json();
 
       const detailedPokemonPage = data.results
-        .map((pokemon: any) => {
+        .map((pokemon: Pokemon) => {
           const id = pokemon.url.split("/").filter(Boolean).pop();
 
-          if (offset === 680) console.log(data);
+          if (!id) return null;
+
+          // Work on hypenated names
+          let pokemonName = pokemon.name;
+
+          if (
+            pokemonName.includes("-") &&
+            ![1001, 1002, 1003, 1004].includes(Number(id)) // Treasures of Ruin pokemon
+          ) {
+            const splitPokemonName = pokemonName.split("-");
+            pokemonName = splitPokemonName[0];
+
+            if (Number(id) > 983) {
+              pokemonName = splitPokemonName[0] + " " + splitPokemonName[1];
+              console.log(pokemonName);
+            }
+          }
+
           return {
-            name: pokemon.name,
+            name: pokemonName,
             id: Number(id),
             image: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`,
             types: [],
