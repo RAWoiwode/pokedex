@@ -62,16 +62,21 @@ export default function Index() {
       );
       const data = await response.json();
 
-      const detailedPokemonPage = data.results.map((pokemon: any) => {
-        const id = pokemon.url.split("/").filter(Boolean).pop();
-        return {
-          name: pokemon.name,
-          id: Number(id),
-          image: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`,
-          types: [],
-          url: pokemon.url,
-        };
-      });
+      const detailedPokemonPage = data.results
+        .map((pokemon: any) => {
+          const id = pokemon.url.split("/").filter(Boolean).pop();
+
+          if (offset === 680) console.log(data);
+          return {
+            name: pokemon.name,
+            id: Number(id),
+            image: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`,
+            types: [],
+            url: pokemon.url,
+          };
+        })
+        // Only 1025 official pokemon currently
+        .filter((pokemon: Pokemon) => pokemon.id <= 1025);
 
       // Fetch types for all items on this page
       const withTypes = await Promise.all(
@@ -83,7 +88,7 @@ export default function Index() {
 
       setPokemon((prev) => [...prev, ...withTypes]); // Add next page of Pokemon
       setOffset((prev) => prev + LIMIT); // Increase offset
-      setHasMore(Boolean(data.next));
+      setHasMore(detailedPokemonPage.length === LIMIT);
 
       // prefetch images for current page (silently ignores failures)
       const uris = detailedPokemonPage

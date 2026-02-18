@@ -10,7 +10,7 @@
   - They are counted as separate pokemon; Maybe add this as a toggle form??
 - Terastal Form
 - 3D Models?
-- Work on loading all pokemon properly - DONE
+- ~~Work on loading all pokemon properly~~
   - Maybe make a top menu to select by region to reduce load - Still like this idea
 
 # Expo
