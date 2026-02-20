@@ -2,12 +2,16 @@
 
 ## TODO
 
-- Since PokeAPI just assigns all forms an ID, I need to figure out how to skip certain ID's (i.e. Megas, GMAX, etc)
-- Long names (e.g Giratina-Altered) need to be handled better, causing horizontal scroll currently
+- ~~Since PokeAPI just assigns all forms an ID, I need to figure out how to skip certain ID's (i.e. Megas, GMAX, etc)~~
+  - Current solution for this does make an extra API call. Need to think of a better solution to reduce that
+- ~~Long names (e.g Giratina-Altered) need to be handled better, causing horizontal scroll currently~~
 - Animated sprites if possible?
-- Primal forms
-- Paradox Pokemon - show up with new loading method
-  - They are counted as separate pokemon; Maybe add this as a toggle form??
+- Indicate on Index page cards which Pokemon have different forms (i.e. Gmax, altered, curly, etc.)
+- Different forms - will have a toggle in the Details page;
+  - Primal
+  - Altered
+  - etc
+- ~~Paradox Pokemon~~ - Just decided since they have a separate Pokedex entry they are fine to display
 - Terastal Form
 - 3D Models?
 - ~~Work on loading all pokemon properly~~
