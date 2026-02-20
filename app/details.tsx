@@ -1,8 +1,8 @@
 import GigantamaxDisplay from "@/components/GigantamaxDisplay";
 import MegaDisplay from "@/components/MegaDisplay";
 import { COLORS_BY_TYPE } from "@/constants/colorsByType";
-import { GIGANTAMAX_POKEMON } from "@/constants/gigantamaxList";
-import { MEGA_POKEMON } from "@/constants/megaList";
+import { GIGANTAMAX_POKEMON_NAMES } from "@/constants/gigantamaxList";
+import { MEGA_POKEMON_NAMES } from "@/constants/megaList";
 import { Stack, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
@@ -54,7 +54,7 @@ export default function Details() {
 
       // console.log(data);
       const megaInfo = {
-        mega: MEGA_POKEMON.get(data.name),
+        mega: MEGA_POKEMON_NAMES.get(data.name),
         mega_front_sprite: null,
         mega_front_shiny_sprite: null,
         mega_front_sprite_2: null,
@@ -98,7 +98,7 @@ export default function Details() {
       }
 
       const gmaxInfo = {
-        gmax: GIGANTAMAX_POKEMON.includes(data.name),
+        gmax: GIGANTAMAX_POKEMON_NAMES.includes(data.name),
         gmax_front_sprite: null,
         gmax_front_shiny_sprite: null,
       };

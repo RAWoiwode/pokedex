@@ -5,6 +5,7 @@
 - ~~Since PokeAPI just assigns all forms an ID, I need to figure out how to skip certain ID's (i.e. Megas, GMAX, etc)~~
   - Current solution for this does make an extra API call. Need to think of a better solution to reduce that
 - ~~Long names (e.g Giratina-Altered) need to be handled better, causing horizontal scroll currently~~
+- Refactor Index page - separation of concerns
 - Animated sprites if possible?
 - Indicate on Index page cards which Pokemon have different forms (i.e. Gmax, altered, curly, etc.)
 - Different forms - will have a toggle in the Details page;

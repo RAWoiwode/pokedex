@@ -1,4 +1,4 @@
-export const MEGA_POKEMON = new Map([
+export const MEGA_POKEMON_NAMES = new Map([
   // X & Y
   ["venusaur", 1],
   ["charizard", 2], // 'mega-x' & 'mega-y'
@@ -94,3 +94,16 @@ export const MEGA_POKEMON = new Map([
   ["tatsugiri", 3], // 'tatsugiri-curly-mega', 'tatsugiri-droopy-mega', 'tatsugiri-stretchy-mega'
   ["baxcalibur", 1],
 ]);
+
+export const MEGA_POKEMON_IDS = [
+  3, 6, 9, 65, 94, 115, 127, 130, 142, 150, 181, 212, 214, 229, 248, 257, 282,
+  303, 306, 308, 310, 354, 359, 380, 381, 445, 448, 460,
+
+  15, 18, 80, 208, 254, 260, 302, 319, 323, 334, 362, 373, 376, 384, 428, 475,
+  531, 719,
+
+  36, 71, 121, 149, 154, 160, 227, 478, 500, 530, 545, 560, 604, 609, 652, 655,
+  658, 668, 670, 687, 689, 691, 701, 718, 780, 870,
+
+  26, 358, 398, 485, 491, 623, 678, 740, 768, 801, 807, 952, 970, 978, 998,
+];

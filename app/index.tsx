@@ -1,4 +1,6 @@
 import { COLORS_BY_TYPE } from "@/constants/colorsByType";
+import { GIGANTAMAX_POKEMON_IDS } from "@/constants/gigantamaxList";
+import { MEGA_POKEMON_IDS } from "@/constants/megaList";
 import { Link } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -17,6 +19,8 @@ interface Pokemon {
   image: string;
   types: PokemonType[];
   url: string;
+  mega?: boolean;
+  gmax?: boolean;
 }
 
 interface PokemonType {
@@ -65,6 +69,7 @@ export default function Index() {
       const detailedPokemonPage = data.results
         .map((pokemon: Pokemon) => {
           const id = pokemon.url.split("/").filter(Boolean).pop();
+          const numeric_id = Number(id);
 
           if (!id) return null;
 
@@ -73,14 +78,13 @@ export default function Index() {
 
           if (
             pokemonName.includes("-") &&
-            ![1001, 1002, 1003, 1004].includes(Number(id)) // Treasures of Ruin pokemon
+            ![1001, 1002, 1003, 1004].includes(numeric_id) // Treasures of Ruin Pokemon
           ) {
             const splitPokemonName = pokemonName.split("-");
             pokemonName = splitPokemonName[0];
 
             if (Number(id) > 983) {
               pokemonName = splitPokemonName[0] + " " + splitPokemonName[1];
-              console.log(pokemonName);
             }
           }
 
@@ -90,6 +94,8 @@ export default function Index() {
             image: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`,
             types: [],
             url: pokemon.url,
+            mega: MEGA_POKEMON_IDS.includes(numeric_id) ?? false,
+            gmax: GIGANTAMAX_POKEMON_IDS.includes(numeric_id) ?? false,
           };
         })
         // Only 1025 official pokemon currently
@@ -114,27 +120,6 @@ export default function Index() {
       Promise.allSettled(uris.map((uri: string) => Image.prefetch(uri))).catch(
         () => {},
       );
-
-      // INITIAL WAY OF FETCHING -- Fetch detailed info for each Pokemon in parallel
-      // const detailedPokemon = await Promise.all(
-      //   data.results.map(async (pokemon: any) => {
-      //     const res = await fetch(pokemon.url);
-      //     const details = await res.json();
-
-      //     return {
-      //       name: pokemon.name,
-      //       id: details.id,
-      //       types: details.types,
-      //       image: details.sprites.front_default, // main sprite
-      //       url: "https://pokeapi.co/api/v2/pokemon-form/" + details.id,
-      //     };
-      //   }),
-      // );
-
-      // console.log(detailedPokemon);
-
-      // console.log(data);
-      // setPokemon(detailedPokemonPage);
     } catch (error) {
       console.log(error);
     } finally {
@@ -181,13 +166,14 @@ export default function Index() {
             style={{
               backgroundColor:
                 COLORS_BY_TYPE[item.types?.[0]?.type?.name ?? "normal"],
-              padding: 20,
+              paddingHorizontal: 20,
+              paddingVertical: 10,
               borderRadius: 20,
+              height: "100%",
               flex: 1,
             }}
           >
             <Text style={styles.name}>{item.name}</Text>
-
             {item.image ? (
               <Image
                 source={{ uri: item.image }}
@@ -196,6 +182,26 @@ export default function Index() {
             ) : (
               <ActivityIndicator />
             )}
+            <View
+              style={{ flexDirection: "row", justifyContent: "space-evenly" }}
+            >
+              {item.mega && (
+                <Image
+                  source={require("../assets/icons/MegaEvolutionIcon.webp")}
+                  style={{ width: 32, height: 32 }}
+                />
+              )}
+              {item.gmax && (
+                <Image
+                  source={require("../assets/icons/GigantamaxIcon.webp")}
+                  style={{
+                    width: 32,
+                    height: 32,
+                    backgroundColor: "#00000044",
+                  }}
+                />
+              )}
+            </View>
           </View>
         </Link>
       )}
