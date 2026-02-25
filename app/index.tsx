@@ -2,11 +2,12 @@ import { COLORS_BY_TYPE } from "@/constants/colorsByType";
 import { GIGANTAMAX_POKEMON_IDS } from "@/constants/gigantamaxList";
 import { MEGA_POKEMON_IDS } from "@/constants/megaList";
 import { Link } from "expo-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
   Image,
+  Pressable,
   StyleSheet,
   Text,
   View,
@@ -19,8 +20,8 @@ interface Pokemon {
   image: string;
   types: PokemonType[];
   url: string;
-  mega?: boolean;
-  gmax?: boolean;
+  mega: boolean;
+  gmax: boolean;
 }
 
 interface PokemonType {
@@ -28,6 +29,11 @@ interface PokemonType {
     name: string;
     url: string;
   };
+}
+
+interface PokemonListItem {
+  name: string;
+  url: string;
 }
 
 const LIMIT = 20;
@@ -42,6 +48,21 @@ const fetchPokemonDetails = async (url: string): Promise<PokemonType[]> => {
   }
 };
 
+const normalizePokemonName = (name: string, id: number): string => {
+  if (!name.includes("-")) return name;
+
+  if ([1001, 1002, 1003, 1004].includes(id)) return name; // Treasures of Ruin Pokemon
+
+  const splitName = name.split("-");
+  let result = splitName[0];
+
+  if (id > 983) {
+    result = splitName[0] + " " + splitName[1];
+  }
+
+  return result;
+};
+
 export default function Index() {
   const [pokemon, setPokemon] = useState<Pokemon[]>([]);
   const [offset, setOffset] = useState(0);
@@ -49,7 +70,7 @@ export default function Index() {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true); // Flag to see if we need to fetch again
 
-  async function fetchPokemon() {
+  const fetchPokemon = useCallback(async () => {
     // If we have nothing more to fetch, return
     if (!hasMore || isLoading || isLoadingMore) return;
 
@@ -65,41 +86,32 @@ export default function Index() {
         `https://pokeapi.co/api/v2/pokemon/?limit=${LIMIT}&offset=${offset}`,
       );
       const data = await response.json();
+      const results: PokemonListItem[] = Array.isArray(data.results)
+        ? data.results
+        : [];
 
-      const detailedPokemonPage = data.results
-        .map((pokemon: Pokemon) => {
+      const detailedPokemonPage = results
+        .map((pokemon) => {
           const id = pokemon.url.split("/").filter(Boolean).pop();
-          const numeric_id = Number(id);
-
           if (!id) return null;
 
+          const numeric_id = Number(id);
+
           // Work on hypenated names
-          let pokemonName = pokemon.name;
-
-          if (
-            pokemonName.includes("-") &&
-            ![1001, 1002, 1003, 1004].includes(numeric_id) // Treasures of Ruin Pokemon
-          ) {
-            const splitPokemonName = pokemonName.split("-");
-            pokemonName = splitPokemonName[0];
-
-            if (Number(id) > 983) {
-              pokemonName = splitPokemonName[0] + " " + splitPokemonName[1];
-            }
-          }
+          const pokemonName = normalizePokemonName(pokemon.name, numeric_id);
 
           return {
             name: pokemonName,
-            id: Number(id),
+            id: numeric_id,
             image: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`,
-            types: [],
+            types: [] as PokemonType[],
             url: pokemon.url,
-            mega: MEGA_POKEMON_IDS.includes(numeric_id) ?? false,
-            gmax: GIGANTAMAX_POKEMON_IDS.includes(numeric_id) ?? false,
+            mega: MEGA_POKEMON_IDS.includes(numeric_id),
+            gmax: GIGANTAMAX_POKEMON_IDS.includes(numeric_id),
           };
         })
         // Only 1025 official pokemon currently
-        .filter((pokemon: Pokemon) => pokemon.id <= 1025);
+        .filter((p): p is Pokemon => p !== null && p.id <= 1025);
 
       // Fetch types for all items on this page
       const withTypes = await Promise.all(
@@ -126,12 +138,12 @@ export default function Index() {
       setIsLoading(false);
       setIsLoadingMore(false);
     }
-  }
+  }, [hasMore, isLoading, isLoadingMore, offset]);
 
   useEffect(() => {
     // Fetch Pokemon
     fetchPokemon();
-  });
+  }, [fetchPokemon]);
 
   if (isLoading && pokemon.length === 0) {
     return (
@@ -147,64 +159,56 @@ export default function Index() {
       data={pokemon}
       keyExtractor={(pokemon) => String(pokemon.id)}
       numColumns={2}
-      contentContainerStyle={{
-        marginHorizontal: "auto",
-        gap: 12,
-        backgroundColor: "black",
-      }}
-      columnWrapperStyle={{
-        gap: 12,
-      }}
-      renderItem={({ item }) => (
-        <Link
-          href={{
-            pathname: "/details",
-            params: { name: item.name, url: item.url },
-          }}
-        >
-          <View
-            style={{
-              backgroundColor:
-                COLORS_BY_TYPE[item.types?.[0]?.type?.name ?? "normal"],
-              paddingHorizontal: 20,
-              paddingVertical: 10,
-              borderRadius: 20,
-              height: "100%",
-              flex: 1,
+      contentContainerStyle={styles.listContent}
+      columnWrapperStyle={styles.row}
+      renderItem={({ item }) => {
+        const typeName = item.types?.[0]?.type?.name ?? "normal";
+        const bg = COLORS_BY_TYPE[typeName] ?? COLORS_BY_TYPE.normal;
+
+        return (
+          <Link
+            href={{
+              pathname: "/details",
+              params: { name: item.name, url: item.url },
             }}
+            asChild
           >
-            <Text style={styles.name}>{item.name}</Text>
-            {item.image ? (
-              <Image
-                source={{ uri: item.image }}
-                style={{ width: 150, height: 150 }}
-              />
-            ) : (
-              <ActivityIndicator />
-            )}
-            <View
-              style={{ flexDirection: "row", justifyContent: "space-evenly" }}
+            <Pressable
+              style={StyleSheet.flatten([
+                styles.card,
+                {
+                  backgroundColor: bg,
+                },
+              ])}
             >
-              {item.mega && (
-                <Image
-                  source={require("../assets/icons/MegaEvolutionIcon.webp")}
-                  style={{ width: 32, height: 32 }}
-                />
+              <Text style={styles.name}>{item.name}</Text>
+              {item.image ? (
+                <Image source={{ uri: item.image }} style={styles.sprite} />
+              ) : (
+                <ActivityIndicator />
               )}
-              {item.gmax && (
-                <Image
-                  source={require("../assets/icons/GigantamaxIcon.webp")}
-                  style={{
-                    width: 32,
-                    height: 32,
-                    backgroundColor: "#00000044",
-                  }}
-                />
-              )}
-            </View>
-          </View>
-        </Link>
-      )}
+              <View style={styles.badges}>
+                {item.mega && (
+                  <Image
+                    source={require("../assets/icons/MegaEvolutionIcon.webp")}
+                    style={{ width: 32, height: 32 }}
+                  />
+                )}
+                {item.gmax && (
+                  <Image
+                    source={require("../assets/icons/GigantamaxIcon.webp")}
+                    style={{
+                      width: 32,
+                      height: 32,
+                      backgroundColor: "#00000044",
+                    }}
+                  />
+                )}
+              </View>
+            </Pressable>
+          </Link>
+        );
+      }}
       onEndReached={() => {
         if (!isLoadingMore && hasMore) fetchPokemon();
       }}
@@ -218,9 +222,32 @@ export default function Index() {
 
 const styles = StyleSheet.create({
   name: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: "bold",
     textTransform: "capitalize",
     textAlign: "center",
+  },
+  listContent: {
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+  },
+  row: {
+    justifyContent: "space-between",
+  },
+  card: {
+    flex: 1,
+    marginBottom: 12,
+    marginHorizontal: 6,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 20,
+  },
+  sprite: {
+    width: 150,
+    height: 150,
+  },
+  badges: {
+    flexDirection: "row",
+    justifyContent: "space-evenly",
   },
 });
