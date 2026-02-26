@@ -7,9 +7,11 @@ import {
   ActivityIndicator,
   FlatList,
   Image,
+  Platform,
   Pressable,
   StyleSheet,
   Text,
+  useWindowDimensions,
   View,
 } from "react-native";
 
@@ -69,6 +71,14 @@ export default function Index() {
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true); // Flag to see if we need to fetch again
+
+  const { width } = useWindowDimensions();
+  const COLUMN_GAP = 12;
+  const HORIZONTAL_PADDING = 12;
+  const CARD_WIDTH =
+    Platform.OS === "web"
+      ? undefined
+      : (width - HORIZONTAL_PADDING * 2 - COLUMN_GAP) / 2;
 
   const fetchPokemon = useCallback(async () => {
     // If we have nothing more to fetch, return
@@ -176,9 +186,8 @@ export default function Index() {
             <Pressable
               style={StyleSheet.flatten([
                 styles.card,
-                {
-                  backgroundColor: bg,
-                },
+                { backgroundColor: bg },
+                CARD_WIDTH ? { width: CARD_WIDTH } : null,
               ])}
             >
               <Text style={styles.name}>{item.name}</Text>
@@ -235,12 +244,12 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   card: {
-    flex: 1,
     marginBottom: 12,
     marginHorizontal: 6,
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 20,
+    ...(Platform.OS === "web" ? { flex: 1 } : null),
   },
   sprite: {
     width: 150,
