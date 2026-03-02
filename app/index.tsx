@@ -20,35 +20,84 @@ interface Pokemon {
   name: string;
   id: number;
   image: string;
-  types: PokemonType[];
+  types: string[];
   url: string;
   mega: boolean;
   gmax: boolean;
 }
 
-interface PokemonType {
-  type: {
-    name: string;
-    url: string;
-  };
-}
-
-interface PokemonListItem {
-  name: string;
-  url: string;
-}
-
 const LIMIT = 20;
+const POKEAPI_GQL_URL = "https://graphql.pokeapi.co/v1beta2/";
 
-const fetchPokemonDetails = async (url: string): Promise<PokemonType[]> => {
-  try {
-    const result = await fetch(url);
-    const details = await result.json();
-    return details.types;
-  } catch {
-    return [];
+/**
+ * Fetch a page of Pokemon that already includes their types (GraphQL)
+ */
+async function fetchPokemonPageGql(
+  limit: number,
+  offset: number,
+): Promise<{ id: number; name: string; types: string[] }[]> {
+  const query = `
+  query PokemonPage($limit: Int!, $offset: Int!) {
+    pokemon(
+      limit: $limit
+      offset: $offset
+      order_by: { id: asc }
+      where: { id: { _lte: 1025 } }
+    ) {
+      id
+      name
+      pokemontypes(order_by: { slot: asc }) {
+        type {
+          name
+        }
+      }
+    }
   }
-};
+`;
+
+  const result = await fetch(POKEAPI_GQL_URL, {
+    method: "POST",
+    headers: { "content-type": "application/json", accept: "application/json" },
+    body: JSON.stringify({
+      operationName: "PokemonPage",
+      query,
+      variables: { limit, offset },
+    }),
+  });
+
+  const json = await result.json();
+
+  if (!result.ok || json.errors) {
+    throw new Error(
+      `GraphQL error: ${result.status} ${JSON.stringify(json.errors ?? json)}`,
+    );
+  }
+
+  // Shape returned by PokeAPI GraphQL
+  const rows: {
+    id: number;
+    name: string;
+    pokemontypes: { type: { name: string } }[];
+  }[] = Array.isArray(json?.data?.pokemon) ? json.data.pokemon : [];
+
+  return rows.map((pokemon) => ({
+    id: pokemon.id,
+    name: pokemon.name,
+    types: (pokemon.pokemontypes ?? []).map(
+      (pokemonType) => pokemonType.type.name,
+    ),
+  }));
+}
+
+// const fetchPokemonDetails = async (url: string): Promise<PokemonType[]> => {
+//   try {
+//     const result = await fetch(url);
+//     const details = await result.json();
+//     return details.types;
+//   } catch {
+//     return [];
+//   }
+// };
 
 const normalizePokemonName = (name: string, id: number): string => {
   if (!name.includes("-")) return name;
@@ -92,54 +141,55 @@ export default function Index() {
       }
 
       // Fetch so many pokemon per "page"
-      const response = await fetch(
-        `https://pokeapi.co/api/v2/pokemon/?limit=${LIMIT}&offset=${offset}`,
-      );
-      const data = await response.json();
-      const results: PokemonListItem[] = Array.isArray(data.results)
-        ? data.results
-        : [];
+      // const response = await fetch(
+      //   `https://pokeapi.co/api/v2/pokemon/?limit=${LIMIT}&offset=${offset}`,
+      // );
+      // const data = await response.json();
+      // const results: PokemonListItem[] = Array.isArray(data.results)
+      //   ? data.results
+      //   : [];
 
-      const detailedPokemonPage = results
-        .map((pokemon) => {
-          const id = pokemon.url.split("/").filter(Boolean).pop();
-          if (!id) return null;
+      const page = await fetchPokemonPageGql(LIMIT, offset);
 
-          const numeric_id = Number(id);
+      const detailedPokemonPage: Pokemon[] = page.map((pokemon) => {
+        // const id = pokemon.url.split("/").filter(Boolean).pop();
+        // if (!id) return null;
 
-          // Work on hypenated names
-          const pokemonName = normalizePokemonName(pokemon.name, numeric_id);
+        // const numeric_id = Number(id);
 
-          return {
-            name: pokemonName,
-            id: numeric_id,
-            image: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`,
-            types: [] as PokemonType[],
-            url: pokemon.url,
-            mega: MEGA_POKEMON_IDS.includes(numeric_id),
-            gmax: GIGANTAMAX_POKEMON_IDS.includes(numeric_id),
-          };
-        })
-        // Only 1025 official pokemon currently
-        .filter((p): p is Pokemon => p !== null && p.id <= 1025);
+        // Work on hypenated names
+        const pokemonName = normalizePokemonName(pokemon.name, pokemon.id);
+
+        return {
+          name: pokemonName,
+          id: pokemon.id,
+          image: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.id}.png`,
+          types: pokemon.types,
+          url: `https://pokeapi.co/api/v2/pokemon/${pokemon.id}`,
+          mega: MEGA_POKEMON_IDS.includes(pokemon.id),
+          gmax: GIGANTAMAX_POKEMON_IDS.includes(pokemon.id),
+        };
+      });
+      // Only 1025 official pokemon currently
+      // .filter((p): p is Pokemon => p !== null && p.id <= 1025);
 
       // Fetch types for all items on this page
-      const withTypes = await Promise.all(
-        detailedPokemonPage.map(async (pokemon: Pokemon) => {
-          const types = await fetchPokemonDetails(pokemon.url);
-          return { ...pokemon, types };
-        }),
-      );
+      // const withTypes = await Promise.all(
+      //   detailedPokemonPage.map(async (pokemon: Pokemon) => {
+      //     const types = await fetchPokemonDetails(pokemon.url);
+      //     return { ...pokemon, types };
+      //   }),
+      // );
 
-      setPokemon((prev) => [...prev, ...withTypes]); // Add next page of Pokemon
+      setPokemon((prev) => [...prev, ...detailedPokemonPage]); // Add next page of Pokemon
       setOffset((prev) => prev + LIMIT); // Increase offset
       setHasMore(detailedPokemonPage.length === LIMIT);
 
       // prefetch images for current page (silently ignores failures)
       const uris = detailedPokemonPage
-        .map((pokemon: Pokemon) => pokemon.image)
+        .map((pokemon) => pokemon.image)
         .filter(Boolean);
-      Promise.allSettled(uris.map((uri: string) => Image.prefetch(uri))).catch(
+      Promise.allSettled(uris.map((uri) => Image.prefetch(uri))).catch(
         () => {},
       );
     } catch (error) {
@@ -172,7 +222,7 @@ export default function Index() {
       contentContainerStyle={styles.listContent}
       columnWrapperStyle={styles.row}
       renderItem={({ item }) => {
-        const typeName = item.types?.[0]?.type?.name ?? "normal";
+        const typeName = item.types[0] ?? "normal";
         const bg = COLORS_BY_TYPE[typeName] ?? COLORS_BY_TYPE.normal;
 
         return (
